@@ -2,9 +2,6 @@ from typing import List
 from setuptools import find_packages, setup
 
 def get_requirements(file_path: str) -> List[str]:
-    '''
-    this function returns the list of the requirements from the requirements.txt file
-    '''
     requirements = []
     with open(file_path) as fileObj:
         requirements = fileObj.readlines()

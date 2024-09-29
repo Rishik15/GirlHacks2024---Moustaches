@@ -6,4 +6,4 @@ scikit-learn
 tensorflow
 opencv-python
 
--e .
+# -e .
