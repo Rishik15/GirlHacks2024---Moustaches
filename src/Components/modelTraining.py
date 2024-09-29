@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 import os
 import sys
+import cv2
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
@@ -8,6 +9,7 @@ from tensorflow.keras.metrics import Precision, Recall, BinaryAccuracy
 from src.exception import CustomException
 from src.logger import logging
 import dill
+import numpy as np
 
 
 @dataclass
@@ -17,6 +19,7 @@ class ModelTrainerConfig:
 class ModelTrainer:
     def __init__(self):
         self.model_trainer_config = ModelTrainerConfig()
+        self.model = None
 
     def build_model(self):
         logging.info("Building the CNN model.")
@@ -38,7 +41,8 @@ class ModelTrainer:
     
     def compile_model(self, model):
         logging.info("Compiling the model.")
-        model.compile(optimizer='adam', loss=tf.keras.losses.BinaryCrossentropy(), metrics=['accuracy'])
+        model.compile(optimizer='adam', loss=tf.keras.losses.BinaryCrossentropy(), metrics=['accuracy', Precision(), Recall(), BinaryAccuracy()])
+        logging.info('Evaluated the model')
         model.summary(print_fn=logging.info)
 
     def initiate_model_trainer(self, train, val, test, epochs = 10):
@@ -51,25 +55,6 @@ class ModelTrainer:
 
             logging.info("Training history: %s", hist.history)
 
-            pre = Precision()
-            re = Recall()
-            acc = BinaryAccuracy()
-
-            for batch in test.as_numpy_iterator():
-                X, y = batch
-                yhat = model.predict(X)
-                pre.update_state(y, yhat)
-                re.update_state(y, yhat)
-                acc.update_state(y, yhat)
-
-
-            logging.info("Precision: {:.4f}".format(pre.result().numpy()))
-            logging.info("Recall: {:.4f}".format(re.result().numpy()))
-            logging.info("Binary Accuracy: {:.4f}".format(acc.result().numpy()))
-
-            if pre.result().numpy() < 0.6 or re.result().numpy() < 0.6 or acc.result().numpy() < 0.6:
-                raise CustomException("Not a good model.", sys)
-
             save_object(file_path=self.model_trainer_config.trained_model_file_path, obj= model)
             logging.info(f'Model saved to {self.model_trainer_config.trained_model_file_path}')
             
@@ -77,6 +62,23 @@ class ModelTrainer:
         except Exception as e:
             raise CustomException(e, sys)
         
+        def predict(self, imagePath: str):
+            if self.model is None:
+                raise CustomException("Model not loaded.", sys)
+            
+            img = cv2.imread(imagePath)
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            resized_image = tf.image.resize(img, (256,256))
+
+            yPredict = self.model.predict(np.expand_dims(resized_image/255,0))
+
+            if(yPredict >= 0.5):
+                probability = yPredict *100
+                return {'Ediblility':'1', 'Probability':probability[0][0]}
+            else:
+                probability = (1- yPredict)*100
+                return {'Ediblility':'0', 'Probability':probability[0][0]}
+                
 
 def save_object(file_path, obj):
     try:

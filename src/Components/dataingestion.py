@@ -69,15 +69,12 @@ if __name__ == "__main__":
     try:
         logging.info("Starting the full pipeline...")
 
-        # Step 1: Data Ingestion
         ingestion = dataIngestion()
         data = ingestion.initiate_data_ingestion()
 
-        # Step 2: Data Transformation
         transformation = DataTransformation()
         train_data, val_data, test_data = transformation.initiate_data_transformation(data)
 
-        # Step 3: Model Training
         trainer = ModelTrainer()
         trainer.initiate_model_trainer(train_data, val_data, test_data)
 
