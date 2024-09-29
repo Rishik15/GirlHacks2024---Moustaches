@@ -68,7 +68,7 @@ class ModelTrainer:
             logging.info("Binary Accuracy: {:.4f}".format(acc.result().numpy()))
 
             if pre.result().numpy() < 0.6 or re.result().numpy() < 0.6 or acc.result().numpy() < 0.6:
-                raise CustomException("Not a good model.")
+                raise CustomException("Not a good model.", sys)
 
             save_object(file_path=self.model_trainer_config.trained_model_file_path, obj= model)
             logging.info(f'Model saved to {self.model_trainer_config.trained_model_file_path}')

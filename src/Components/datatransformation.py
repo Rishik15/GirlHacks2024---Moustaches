@@ -35,9 +35,9 @@ class DataTransformation:
         val = data.skip(train_size).take(val_size)
         test = data.skip(train_size+val_size).take(test_size)
 
-        save_dataset(train, DataTransformation.data_transformation_config.train_data_path, "train")
-        save_dataset(val, DataTransformation.data_transformation_config.val_data_path, "val")
-        save_dataset(test, DataTransformation.data_transformation_config.test_data_path, "test")
+        save_dataset(train, self.data_transformation_config.train_data_path, "train")
+        save_dataset(val, self.data_transformation_config.val_data_path, "val")
+        save_dataset(test, self.data_transformation_config.test_data_path, "test")
 
         return train, val, test
 
