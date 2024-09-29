@@ -1,14 +1,7 @@
-from flask import Flask, request, render_template, redirect, url_for
-import pickle
+from flask import Flask, request, render_template
 from PIL import Image
-import io
 import os
-
-
-
-# Open file read binary as object f
-with open('mushroom_model.pkl', 'rb') as f:
-    model = pickle.load(f)
+from src.Components.modelTraining import ModelTrainer  # Assuming ModelTrainer is defined in this module
 
 
 app = Flask(__name__)
@@ -18,54 +11,38 @@ if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
 
+model_trainer = ModelTrainer() 
+model_trainer.load_model() 
+
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_pic():
-    
-    ##User giving info
     if request.method == 'POST':
-        
-        #pic input is file id
+      
         if 'picInput' not in request.files:
-            return render_template('mushroom.html', error = "No file uploaded")
+            return render_template('mushroom.html', error="No file uploaded")
         
         file = request.files['picInput']
 
-        #Weird case
+
         if file.filename == '':
-            return render_template('No selected file', error = "No selected file")
-        
+            return render_template('mushroom.html', error="No selected file")
         
         if file:
-            image = Image.open(file)
-            
+           
             file_path = os.path.join(UPLOAD_FOLDER, file.filename)
-            
             file.save(file_path)
             
-            #Rishik said no need to prep data
+        
+            prediction = ModelTrainer.predict(file_path)
+
+  
+            prediction['Edibility'] = "Edible" if prediction['Edibility'] == '1' else "Inedible"
             
-            
-            prediction = model.predict(image)
-            ##prediction = {'Ediblility':'1', 'Probability':45 }
-            
-            #convert from int to string that can be used in html
-            prediction['Edibility'] = "Edible" if prediction['Edibility'] == 1 else "Inedible"
-            
-            
-            ##Remove low chance shrooms
-            print(prediction)
-            
-            #return render_template('mushroom.html', prediction)
+
             return render_template('mushroom.html', prediction=prediction)
-            
-           
-        
     
-        
+
     return render_template('mushroom.html')
-    #GET 
 
-
-
-if __name__== '__main__':
+if __name__ == '__main__':
     app.run(debug=True)

@@ -6,5 +6,7 @@ scikit-learn
 tensorflow
 opencv-python
 dill
+flask
+pillow
 
-# -e .
+-e .
