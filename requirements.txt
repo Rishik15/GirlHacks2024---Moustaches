@@ -1,0 +1,13 @@
+pandas
+seaborn
+numpy
+matplotlib
+scikit-learn
+tensorflow>=2.13.0
+opencv-python
+dill
+flask
+pillow
+keras
+
+-e .
