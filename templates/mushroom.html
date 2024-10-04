@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mushroom Project</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mushroomStyle.css') }}">
+</head>
+<body>
+    <fieldset>
+        <b><h1>Mushroom Information</h1></b>
+        <form action="{{ url_for('upload_pic') }}" id="mushroomForm" method="post" enctype="multipart/form-data">
+            <div>
+                <b><h3><label for="picInput">Eat the Mushroom Maybe?</label></h3></b>
+                <br>
+                <label for="picInput" class="custom-file-upload">
+                    Upload Mushroom Image
+                </label>
+                <input type="file" id="picInput" name="picInput" accept="image/*" required>
+            </div>
+            <br>
+            <div>
+                <button type="submit"><b>Submit</b></button>
+            </div>
+        </form>
+    </fieldset>
+
+    <div id="myModal" class="modal {% if prediction %}show{% else %}hide{% endif %}">
+        <div class="modal-content">
+            <span class="close" id="closeModal">&times;</span>
+            {% if prediction %}
+                <h2>Mushroom Details</h2>
+                <table>
+                    <tr>
+                        <th>Edible</th>
+                        <th>Confidence (%)</th>
+                    </tr>
+                    <tr>
+                        <td>{{ prediction['Edibility'] }}</td>
+                        <td>{{ prediction['Probability'] | round(2) }}</td>
+                    </tr>
+                </table>
+            {% endif %}
+        </div>
+    </div>
+
+    <button id="aboutButton">About App</button>
+    <div id="infoPopup" class="popup">
+        <div class="popup-content">
+            <span class="close" id="closePopup">&times;</span>
+            <h2>About This App</h2>
+            <p>This app helps you identify if your mushroom is edible or not. It also gives the probability of its edibility.</p>
+            <p>Note: This prediction is not fully accurate as the model is still under training.</p>
+        </div>
+    </div>
+
+    <script>
+        var modal = document.getElementById("myModal");
+        var span = document.getElementById("closeModal");
+
+        span.onclick = function() {
+            modal.style.display = "none";
+        };
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        };
+
+        const aboutButton = document.getElementById("aboutButton");
+        const popup = document.getElementById("infoPopup");
+        const closePopup = document.getElementById("closePopup");
+
+        aboutButton.onclick = function() {
+            popup.style.display = "block";
+        };
+
+        closePopup.onclick = function() {
+            popup.style.display = "none";
+        };
+
+        window.onclick = function(event) {
+            if (event.target == popup) {
+                popup.style.display = "none";
+            }
+        };
+    </script>
+</body>
+</html>
